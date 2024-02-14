@@ -1,42 +1,23 @@
-def Bellman_Ford_algorithm(edges=list(G.edges(data=True)), first_node=0):
-    num_nodes = max(max(edge[0], edge[1]) for edge in edges) + 1
-    distance = [float('inf')] * num_nodes
-    distance[first_node] = 0
-    summary=''
-    for _ in range(num_nodes - 1):
-        for source, dest, edge_data in edges:
-            weight = edge_data['weight']
-            if distance[dest] > distance[source] + weight:
-                distance[dest] = distance[source] + weight
-    for source, dest, edge_data in edges:
-        weight = edge_data['weight']
-        if distance[dest] > distance[source] + weight:
-            return "Negative cycle detected"
-    for k, v in enumerate(distance):
-        summary += f"Distance to {k}: {v}\n"
-    return summary
-print(Bellman_Ford_algorithm())
+def kruskals_algorithm(graph: nx.classes.graph.Graph) -> list:
+    '''Kruskal's algorithm implementation'''
 
+    edges = sorted([(a,b,c['weight']) for a,b,c in list(graph.edges(data=True))], key= lambda x: x[2])
+    mst_kraskal = []
+    nodes_set = disjoint_set(list(graph.nodes))
 
-def Floyd_Warshall_algorithm(edges=list(G.edges(data=True))):
-    num_nodes = max(max(edge[0], edge[1]) for edge in edges) + 1
-    distances_with_source = {}
-    summary=''
-    for source in range(num_nodes):
-        distance = {node: float('inf') for node in range(num_nodes)}
-        distance[source] = 0
-        for _ in range(num_nodes - 1):
-            for source_node, dest_node, edge_data in edges:
-                weight = edge_data['weight']
-                if distance[dest_node] > distance[source_node] + weight:
-                    distance[dest_node] = distance[source_node] + weight
-        distances_with_source[source] = distance
-        for source_node, dest_node, edge_data in edges:
-            weight = edge_data['weight']
-            if distance[dest_node] > distance[source_node] + weight:
-                return "Negative cycle detected"
-    for source, dist in distances_with_source.items():
-        dist_str = ', '.join([f"{node}: {dist}" for node, dist in dist.items()])
-        summary+=f"Distances with {source} source: {{{dist_str}}}\n"
-    return summary
-print(Floyd_Warshall_algorithm())
+    for v,u, _ in edges:
+        if find(nodes_set, v) != find(nodes_set, u):
+            mst_kraskal.append((v, u))
+            union(nodes_set, v, u)
+    return mst_kraskal
+
+def find(nodes_set: dict, vertex: int):
+    if nodes_set[vertex] != vertex:
+        nodes_set[vertex] = find(nodes_set, nodes_set[vertex])
+    return nodes_set[vertex]
+
+def disjoint_set(list_of_vertices: list):
+    return {k:k for k in list_of_vertices}
+
+def union(nodes_set: dict, vertex1:int, vertex2:int):
+    nodes_set[find(nodes_set, vertex1)] = find(nodes_set, vertex2)
