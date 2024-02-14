@@ -1,18 +1,22 @@
-def Bellman_Ford_algorithm(edges=list(G.edges(data=True)), first_node=0):
+def Floyd_Warshall_algorithm(edges=list(G.edges(data=True))):
     num_nodes = max(max(edge[0], edge[1]) for edge in edges) + 1
-    distance = [float('inf')] * num_nodes
-    distance[first_node] = 0
+    distances_with_source = {}
     summary=''
-    for _ in range(num_nodes - 1):
-        for source, dest, edge_data in edges:
+    for source in range(num_nodes):
+        distance = {node: float('inf') for node in range(num_nodes)}
+        distance[source] = 0
+        for _ in range(num_nodes - 1):
+            for source_node, dest_node, edge_data in edges:
+                weight = edge_data['weight']
+                if distance[dest_node] > distance[source_node] + weight:
+                    distance[dest_node] = distance[source_node] + weight
+        distances_with_source[source] = distance
+        for source_node, dest_node, edge_data in edges:
             weight = edge_data['weight']
-            if distance[dest] > distance[source] + weight:
-                distance[dest] = distance[source] + weight
-    for source, dest, edge_data in edges:
-        weight = edge_data['weight']
-        if distance[dest] > distance[source] + weight:
-            return "Negative cycle detected"
-    for k, v in enumerate(distance):
-        summary += f"Distance to {k}: {v}\n"
+            if distance[dest_node] > distance[source_node] + weight:
+                return "Negative cycle detected"
+    for source, dist in distances_with_source.items():
+        dist_str = ', '.join([f"{node}: {dist}" for node, dist in dist.items()])
+        summary+=f"Distances with {source} source: {{{dist_str}}}\n"
     return summary
-print(Bellman_Ford_algorithm())
+print(Floyd_Warshall_algorithm())
