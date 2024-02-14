@@ -1,1 +1,18 @@
-
+def Bellman_Ford_algorithm(edges=list(G.edges(data=True)), first_node=0):
+    num_nodes = max(max(edge[0], edge[1]) for edge in edges) + 1
+    distance = [float('inf')] * num_nodes
+    distance[first_node] = 0
+    summary=''
+    for _ in range(num_nodes - 1):
+        for source, dest, edge_data in edges:
+            weight = edge_data['weight']
+            if distance[dest] > distance[source] + weight:
+                distance[dest] = distance[source] + weight
+    for source, dest, edge_data in edges:
+        weight = edge_data['weight']
+        if distance[dest] > distance[source] + weight:
+            return "Negative cycle detected"
+    for k, v in enumerate(distance):
+        summary += f"Distance to {k}: {v}\n"
+    return summary
+print(Bellman_Ford_algorithm())
